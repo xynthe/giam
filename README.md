@@ -404,17 +404,9 @@ The GIAM family of papers is a foundation, not a terminus. Future work may inclu
 
 ---
 
-## Recommended Licensing
+## DOSL Licensing
 
-Suggested licenses include:
-
-- MIT License for maximum openness and ecosystem growth
-- Apache 2.0 for explicit patent protection and open development
-
-Final license selection should reflect whether GIAM is intended as:
-- An open research framework
-- A specification standard
-- A controlled canonical ecosystem document
+Refer to LICENSE file
 
 ---
 
