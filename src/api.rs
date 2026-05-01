@@ -46,10 +46,10 @@ impl GiamClient {
 
     /// Executes an intent and returns the result
     pub fn execute(&self, intent: &Intent) -> Result<StructuredContent> {
-        StructuredContent::text(format!(
+        Ok(StructuredContent::text(format!(
             "Executed intent '{}' at level {}",
             intent.description, self.level
-        ))
+        )))
     }
 
     /// Routes an intent and returns the routing decision
