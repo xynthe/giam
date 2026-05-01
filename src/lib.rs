@@ -21,7 +21,11 @@ pub mod temporal;
 pub mod trace;
 
 pub mod actor;
+pub mod api;
+pub mod autonomy;
+pub mod benchmark;
 pub mod constraint;
+pub mod metrics;
 pub mod goals;
 pub mod memory;
 pub mod multi_agent;
@@ -43,3 +47,7 @@ pub use self::trace::{ExecutionTrace, ThoughtEvent, ThoughtEventType, TraceEvent
 pub use self::config::GiamConfig;
 pub use self::intent::{GoalStatus, Intent};
 pub use self::capability::{Capability, CapabilityContract};
+pub use self::autonomy::AutonomyBoundary;
+pub use self::metrics::LevelMetrics;
+pub use self::benchmark::{Benchmark, BenchmarkResult};
+pub use self::api::{GiamClient, ExecuteRequest, ExecuteResponse, RouteRequest, RouteResponse};

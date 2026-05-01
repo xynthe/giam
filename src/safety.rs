@@ -49,12 +49,12 @@ impl SafetyPolicy {
 
     /// Checks if an action is allowed
     pub fn is_allowed(&self, action_id: &str) -> bool {
-        self.allowed_actions.iter().any(|a| &a.id == action_id)
+        self.allowed_actions.iter().any(|a| a.id == action_id)
     }
 
     /// Checks if an action requires approval
     pub fn requires_approval(&self, action_id: &str) -> bool {
-        self.approval_required.iter().any(|a| &a.id == action_id)
+        self.approval_required.iter().any(|a| a.id == action_id)
     }
 }
 

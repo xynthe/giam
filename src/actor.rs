@@ -42,6 +42,11 @@ impl ActorSystem {
     pub fn len(&self) -> usize {
         self.actors.len()
     }
+
+    /// Returns whether the actor system has no actors
+    pub fn is_empty(&self) -> bool {
+        self.actors.is_empty()
+    }
 }
 
 impl Default for ActorSystem {
