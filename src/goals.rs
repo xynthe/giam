@@ -2,6 +2,8 @@
 //!
 //! Provides types for tracking goals and their progress
 
+use std::collections::HashSet;
+
 use serde::{Deserialize, Serialize};
 
 use crate::intent::GoalStatus;
@@ -21,6 +23,10 @@ pub struct Goal {
     pub progress: f64,
     /// Optional deadline
     pub deadline: Option<Timestamp>,
+    /// IDs of goals this goal depends on
+    pub dependencies: Vec<Uuid>,
+    /// Priority (higher values = higher priority)
+    pub priority: u32,
 }
 
 impl Goal {
@@ -32,7 +38,34 @@ impl Goal {
             status: GoalStatus::Pending,
             progress: 0.0,
             deadline: None,
+            dependencies: Vec::new(),
+            priority: 0,
         }
+    }
+
+    /// Creates a goal with dependencies
+    pub fn with_dependencies(description: String, dependencies: Vec<Uuid>) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            description,
+            status: GoalStatus::Pending,
+            progress: 0.0,
+            deadline: None,
+            dependencies,
+            priority: 0,
+        }
+    }
+
+    /// Adds a dependency
+    pub fn add_dependency(&mut self, goal_id: Uuid) {
+        if !self.dependencies.contains(&goal_id) {
+            self.dependencies.push(goal_id);
+        }
+    }
+
+    /// Checks if all dependencies are satisfied
+    pub fn dependencies_satisfied(&self, completed: &HashSet<Uuid>) -> bool {
+        self.dependencies.iter().all(|id| completed.contains(id))
     }
 
     /// Updates the progress
