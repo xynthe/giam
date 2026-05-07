@@ -39,6 +39,8 @@ pub mod temporal;
 pub mod trace;
 pub mod validation;
 pub mod workflow;
+#[cfg(test)]
+pub mod integration_tests;
 
 // Re-exports for public API
 pub use self::core::{AutonomyIndex, ExecutionState, GiamLevel, TemporalHorizon};
