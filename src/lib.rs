@@ -43,7 +43,7 @@ pub mod workflow;
 pub mod integration_tests;
 
 // Re-exports for public API
-pub use self::core::{AutonomyIndex, ExecutionState, GiamLevel, TemporalHorizon};
+pub use self::core::{AutonomyIndex, ExecutionState, GiamLevel, StateTransition, StateTransitionImpl, TemporalHorizon};
 pub use self::error::{GiamError, Result};
 pub use self::temporal::{TemporalInstant, TimeWindow, Timestamp};
 pub use self::content::StructuredContent;
@@ -60,3 +60,8 @@ pub use self::execution::{ExecutionConfig, ExecutionEngine};
 pub use self::api::{GiamClient, ExecuteRequest, ExecuteResponse, RouteRequest, RouteResponse};
 pub use self::events::{Event, EventBus, EventHandler, EventPriority};
 pub use self::workflow::{Workflow, WorkflowEngine, WorkflowStep, WorkflowStatus};
+pub use self::goals::{Goal, Milestone};
+pub use self::memory::{MemoryLayer, MemoryEntry, MemoryStore};
+pub use self::routing::{Router, RoutingDecision, DefaultRouter};
+pub use self::safety::SafetyPolicy;
+pub use self::self_evolution::{Skill, SkillMetrics, SkillSource, EvolutionLoop, SkillRepository};

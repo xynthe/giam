@@ -176,6 +176,47 @@ pub trait StateTransition: Send + Sync {
     fn is_valid(&self) -> bool;
 }
 
+/// A concrete state transition with validation
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StateTransitionImpl {
+    from_state: ExecutionState,
+    to_state: ExecutionState,
+}
+
+impl StateTransitionImpl {
+    pub fn new(from: ExecutionState, to: ExecutionState) -> Self {
+        Self {
+            from_state: from,
+            to_state: to,
+        }
+    }
+}
+
+impl StateTransition for StateTransitionImpl {
+    fn from(&self) -> ExecutionState {
+        self.from_state
+    }
+
+    fn to(&self) -> ExecutionState {
+        self.to_state
+    }
+
+    fn is_valid(&self) -> bool {
+        use ExecutionState::*;
+        match (self.from_state, self.to_state) {
+            (Initialized, Perceiving) => true,
+            (Perceiving, Reasoning) => true,
+            (Reasoning, Assigning) => true,
+            (Assigning, Executing) => true,
+            (Executing, Reflecting) => true,
+            (Executing, Failed) => true,
+            (Reflecting, Completed) => true,
+            (_, Paused) => true,
+            _ => false,
+        }
+    }
+}
+
 /// Autonomy index quantifying decision-making authority
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct AutonomyIndex {
@@ -300,5 +341,38 @@ mod tests {
         let idx = AutonomyIndex::for_level(GiamLevel::Ui);
         assert_eq!(idx.level, GiamLevel::Ui);
         assert!((idx.value - 0.5).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_state_transition_valid() {
+        let transition =
+            StateTransitionImpl::new(ExecutionState::Initialized, ExecutionState::Perceiving);
+        assert!(transition.is_valid());
+
+        let transition =
+            StateTransitionImpl::new(ExecutionState::Perceiving, ExecutionState::Reasoning);
+        assert!(transition.is_valid());
+    }
+
+    #[test]
+    fn test_state_transition_invalid() {
+        let transition =
+            StateTransitionImpl::new(ExecutionState::Initialized, ExecutionState::Completed);
+        assert!(!transition.is_valid());
+
+        let transition =
+            StateTransitionImpl::new(ExecutionState::Completed, ExecutionState::Perceiving);
+        assert!(!transition.is_valid());
+    }
+
+    #[test]
+    fn test_state_transition_to_paused() {
+        let transition =
+            StateTransitionImpl::new(ExecutionState::Executing, ExecutionState::Paused);
+        assert!(transition.is_valid());
+
+        let transition =
+            StateTransitionImpl::new(ExecutionState::Completed, ExecutionState::Paused);
+        assert!(transition.is_valid());
     }
 }

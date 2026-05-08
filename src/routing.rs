@@ -104,7 +104,6 @@ impl Router for DefaultRouter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::intent::GoalStatus;
 
     #[test]
     fn test_routing_decision() {
@@ -114,12 +113,67 @@ mod tests {
     }
 
     #[test]
-    fn test_default_router() {
+    fn test_routing_decision_confidence_clamped() {
+        let decision = RoutingDecision::new(GiamLevel::Si, 1.5, "test".to_string());
+        assert_eq!(decision.confidence, 1.0);
+
+        let decision = RoutingDecision::new(GiamLevel::Si, -0.5, "test".to_string());
+        assert_eq!(decision.confidence, 0.0);
+    }
+
+    #[test]
+    fn test_default_router_search() {
         let router = DefaultRouter::new();
-
         let intent = Intent::new("search for information".to_string(), 30);
-
         let decision = router.route(&intent);
         assert_eq!(decision.level, GiamLevel::Agi);
+    }
+
+    #[test]
+    fn test_default_router_analyze() {
+        let router = DefaultRouter::new();
+        let intent = Intent::new("analyze the data".to_string(), 30);
+        let decision = router.route(&intent);
+        assert_eq!(decision.level, GiamLevel::Si);
+    }
+
+    #[test]
+    fn test_default_router_optimize() {
+        let router = DefaultRouter::new();
+        let intent = Intent::new("optimize the workflow".to_string(), 30);
+        let decision = router.route(&intent);
+        assert_eq!(decision.level, GiamLevel::Ui);
+    }
+
+    #[test]
+    fn test_default_router_coordinate() {
+        let router = DefaultRouter::new();
+        let intent = Intent::new("coordinate the team".to_string(), 30);
+        let decision = router.route(&intent);
+        assert_eq!(decision.level, GiamLevel::Spi);
+    }
+
+    #[test]
+    fn test_default_router_high_priority() {
+        let router = DefaultRouter::new();
+        let intent = Intent::new("do something generic".to_string(), 85);
+        let decision = router.route(&intent);
+        assert_eq!(decision.level, GiamLevel::Ui);
+    }
+
+    #[test]
+    fn test_default_router_medium_priority() {
+        let router = DefaultRouter::new();
+        let intent = Intent::new("do something generic".to_string(), 55);
+        let decision = router.route(&intent);
+        assert_eq!(decision.level, GiamLevel::Si);
+    }
+
+    #[test]
+    fn test_default_router_with_custom_mapping() {
+        let router = DefaultRouter::new().with_mapping("custom", GiamLevel::Ti);
+        let intent = Intent::new("custom action".to_string(), 30);
+        let decision = router.route(&intent);
+        assert_eq!(decision.level, GiamLevel::Ti);
     }
 }
