@@ -203,17 +203,17 @@ impl StateTransition for StateTransitionImpl {
 
     fn is_valid(&self) -> bool {
         use ExecutionState::*;
-        match (self.from_state, self.to_state) {
-            (Initialized, Perceiving) => true,
-            (Perceiving, Reasoning) => true,
-            (Reasoning, Assigning) => true,
-            (Assigning, Executing) => true,
-            (Executing, Reflecting) => true,
-            (Executing, Failed) => true,
-            (Reflecting, Completed) => true,
-            (_, Paused) => true,
-            _ => false,
-        }
+        matches!(
+            (self.from_state, self.to_state),
+            (Initialized, Perceiving)
+                | (Perceiving, Reasoning)
+                | (Reasoning, Assigning)
+                | (Assigning, Executing)
+                | (Executing, Reflecting)
+                | (Executing, Failed)
+                | (Reflecting, Completed)
+                | (_, Paused)
+        )
     }
 }
 

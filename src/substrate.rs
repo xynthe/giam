@@ -73,3 +73,43 @@ pub trait SubstrateBackend: Send + Sync {
     /// Returns current resource usage
     fn resources(&self) -> ResourceUsage;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_migration_policy() {
+        let policy = MigrationPolicy::WhenBeneficial;
+        assert_eq!(policy, MigrationPolicy::WhenBeneficial);
+    }
+
+    #[test]
+    fn test_cross_substrate_task() {
+        let task = CrossSubstrateTask::new(
+            vec!["backend1".to_string(), "backend2".to_string()],
+            MigrationPolicy::Failover,
+        );
+
+        assert_eq!(task.backends.len(), 2);
+        assert_eq!(task.migration_policy, MigrationPolicy::Failover);
+    }
+
+    #[test]
+    fn test_resource_usage() {
+        let usage = ResourceUsage::new(50.0, 1024, 2048);
+
+        assert_eq!(usage.cpu, 50.0);
+        assert_eq!(usage.memory, 1024);
+        assert_eq!(usage.network, 2048);
+    }
+
+    #[test]
+    fn test_resource_usage_clamping() {
+        let usage = ResourceUsage::new(150.0, 1024, 2048);
+        assert_eq!(usage.cpu, 100.0);
+
+        let usage = ResourceUsage::new(-10.0, 1024, 2048);
+        assert_eq!(usage.cpu, 0.0);
+    }
+}
