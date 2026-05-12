@@ -137,7 +137,7 @@ impl GlobalOptimizer {
     /// Rebalance allocations based on priority
     pub fn rebalance(&mut self) {
         let mut allocs: Vec<_> = self.allocations.values_mut().flatten().collect();
-        allocs.sort_by(|a, b| b.priority.cmp(&a.priority));
+        allocs.sort_by_key(|a| std::cmp::Reverse(a.priority));
 
         let total: f64 = allocs.iter().map(|a| a.allocated_amount).sum();
         let share = total / allocs.len() as f64;

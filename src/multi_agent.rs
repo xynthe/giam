@@ -173,3 +173,119 @@ impl Default for AgentNetwork {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_agent_creation() {
+        let agent = Agent::new(AgentRole::Worker, GiamLevel::Si);
+        assert_eq!(agent.level, GiamLevel::Si);
+        assert!(agent.available);
+    }
+
+    #[test]
+    fn test_agent_with_capabilities() {
+        let agent = Agent::with_capabilities(
+            AgentRole::Specialist,
+            GiamLevel::Ui,
+            vec!["search".to_string(), "analyze".to_string()],
+        );
+
+        assert!(agent.has_capability("search"));
+        assert!(agent.has_capability("analyze"));
+        assert!(!agent.has_capability("unknown"));
+    }
+
+    #[test]
+    fn test_agent_network() {
+        let mut network = AgentNetwork::new();
+
+        let agent1 = Agent::new(AgentRole::Coordinator, GiamLevel::Spi);
+        let agent2 = Agent::new(AgentRole::Worker, GiamLevel::Si);
+
+        network.add_agent(agent1.clone());
+        network.add_agent(agent2);
+
+        assert_eq!(network.len(), 2);
+        assert!(!network.is_empty());
+    }
+
+    #[test]
+    fn test_find_agents_with_capability() {
+        let mut network = AgentNetwork::new();
+
+        let agent1 = Agent::with_capabilities(
+            AgentRole::Worker,
+            GiamLevel::Si,
+            vec!["compute".to_string()],
+        );
+        let agent1_id = agent1.id;
+
+        let agent2 = Agent::with_capabilities(
+            AgentRole::Specialist,
+            GiamLevel::Ui,
+            vec!["analyze".to_string()],
+        );
+
+        network.add_agent(agent1);
+        network.add_agent(agent2);
+
+        let compute_agents = network.find_agents_with_capability("compute");
+        assert_eq!(compute_agents.len(), 1);
+        assert_eq!(compute_agents[0], agent1_id);
+    }
+
+    #[test]
+    fn test_agents_with_role() {
+        let mut network = AgentNetwork::new();
+
+        network.add_agent(Agent::new(AgentRole::Coordinator, GiamLevel::Spi));
+        network.add_agent(Agent::new(AgentRole::Worker, GiamLevel::Si));
+        network.add_agent(Agent::new(AgentRole::Worker, GiamLevel::Ui));
+
+        let workers = network.agents_with_role(AgentRole::Worker);
+        assert_eq!(workers.len(), 2);
+
+        let coordinators = network.agents_with_role(AgentRole::Coordinator);
+        assert_eq!(coordinators.len(), 1);
+    }
+
+    #[test]
+    fn test_agent_message_task_request() {
+        let message = AgentMessage::TaskRequest {
+            task_id: Uuid::new_v4(),
+            plan: crate::planning::ExecutionPlan::new(),
+        };
+
+        match message {
+            AgentMessage::TaskRequest { .. } => (),
+            _ => panic!("Expected TaskRequest"),
+        }
+    }
+
+    #[test]
+    fn test_distribute_plan() {
+        let mut network = AgentNetwork::new();
+
+        network.add_agent(Agent::with_capabilities(
+            AgentRole::Worker,
+            GiamLevel::Si,
+            vec!["task".to_string()],
+        ));
+        network.add_agent(Agent::with_capabilities(
+            AgentRole::Worker,
+            GiamLevel::Si,
+            vec!["task".to_string()],
+        ));
+
+        let mut plan = crate::planning::ExecutionPlan::new();
+        plan.add_step("task1".to_string(), vec![]);
+        plan.add_step("task2".to_string(), vec![]);
+        plan.add_step("task3".to_string(), vec![]);
+
+        let distribution = network.distribute_plan(&plan);
+        assert!(!distribution.is_empty());
+    }
+}
